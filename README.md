@@ -1,7 +1,3 @@
-# ai-resume-builder
-AI-powered resume builder with ATS scoring, keyword optimization, and PDF generation using LLM (Groq Llama 3)
-
-
 # 📄 AI Resume Builder — India
 > A next-level, production-ready AI-powered resume builder tailored for the Indian job market.
 > Built as a university-level AI project using Streamlit + Groq (Llama-3 70B).
