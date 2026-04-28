@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>{{ full_name }} — Resume</title>
+<style>
+  /* Pure, ATS-parseable single-column layout.
+     No tables, no float, no flexbox columns.
+     Fonts: standard serif for ATS scanners that prefer it. */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 11pt; }
+  body {
+    font-family: 'Times New Roman', Times, serif;
+    color: #111;
+    background: #fff;
+    padding: 25mm 20mm;
+    max-width: 210mm;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* Name block */
+  .name-block { text-align: center; margin-bottom: 6px; }
+  .name-block h1 {
+    font-size: 18pt;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .contacts {
+    text-align: center;
+    font-size: 9.5pt;
+    color: #333;
+    margin-bottom: 14px;
+  }
+  .contacts span { margin: 0 6px; }
+  .divider {
+    border: none;
+    border-top: 1.5px solid #111;
+    margin: 8px 0;
+  }
+
+  /* Sections */
+  .section { margin-bottom: 14px; }
+  .section-title {
+    font-size: 11pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid #111;
+    margin-bottom: 7px;
+    padding-bottom: 2px;
+  }
+
+  /* Summary */
+  .summary-text { font-size: 10pt; text-align: justify; }
+
+  /* Experience / Projects */
+  .entry { margin-bottom: 10px; }
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .entry-title { font-weight: bold; font-size: 10.5pt; }
+  .entry-subtitle { font-style: italic; font-size: 9.5pt; color: #444; }
+  .entry-date { font-size: 9.5pt; white-space: nowrap; }
+  .entry ul {
+    padding-left: 18px;
+    margin-top: 3px;
+  }
+  .entry ul li { font-size: 9.5pt; margin-bottom: 2px; }
+
+  /* Education */
+  .edu-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10pt;
+    margin-bottom: 5px;
+  }
+  .edu-left .edu-degree { font-weight: bold; }
+  .edu-left .edu-inst { font-style: italic; font-size: 9.5pt; color: #444; }
+  .edu-right { text-align: right; font-size: 9.5pt; }
+
+  /* Skills — comma-separated (ATS friendly) */
+  .skills-line { font-size: 9.5pt; margin-bottom: 4px; }
+  .skills-line strong { margin-right: 4px; }
+
+  /* Certifications */
+  .cert-item { font-size: 9.5pt; margin-bottom: 4px; }
+  .cert-item strong { margin-right: 4px; }
+
+  /* Co-curricular */
+  .cocurr-list { padding-left: 16px; }
+  .cocurr-list li { font-size: 9.5pt; margin-bottom: 3px; }
+
+  @media print {
+    body { padding: 15mm 15mm; }
+    .page { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- NAME & CONTACTS -->
+  <div class="name-block">
+    <h1>{{ full_name }}</h1>
+  </div>
+  <div class="contacts">
+    {% if email %}<span>{{ email }}</span>{% endif %}
+    {% if phone %}<span>| {{ phone }}</span>{% endif %}
+    {% if city or state %}<span>| {{ city }}{% if city and state %}, {% endif %}{{ state }}</span>{% endif %}
+    {% if linkedin %}<span>| {{ linkedin }}</span>{% endif %}
+    {% if github %}<span>| {{ github }}</span>{% endif %}
+    {% if portfolio %}<span>| {{ portfolio }}</span>{% endif %}
+  </div>
+  <hr class="divider"/>
+
+  <!-- SUMMARY -->
+  {% if summary %}
+  <div class="section">
+    <div class="section-title">Professional Summary</div>
+    <p class="summary-text">{{ summary }}</p>
+  </div>
+  {% endif %}
+
+  <!-- SKILLS -->
+  {% if skills_technical or skills_tools or skills_soft %}
+  <div class="section">
+    <div class="section-title">Skills</div>
+    {% if skills_technical %}
+      <div class="skills-line">
+        <strong>Technical:</strong> {{ skills_technical | join(', ') }}
+      </div>
+    {% endif %}
+    {% if skills_tools %}
+      <div class="skills-line">
+        <strong>Tools &amp; Platforms:</strong> {{ skills_tools | join(', ') }}
+      </div>
+    {% endif %}
+    {% if skills_soft %}
+      <div class="skills-line">
+        <strong>Soft Skills:</strong> {{ skills_soft | join(', ') }}
+      </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- EXPERIENCE -->
+  {% if experience %}
+  <div class="section">
+    <div class="section-title">Work Experience</div>
+    {% for exp in experience %}
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">{{ exp.role }}</span>
+          <span class="entry-date">{{ exp.start_date }} – {{ exp.end_date }}</span>
+        </div>
+        <div class="entry-subtitle">{{ exp.company }}{% if exp.location %}, {{ exp.location }}{% endif %}</div>
+        {% if exp.description %}
+          <ul>
+            {% for line in exp.description.split('\n') %}
+              {% if line.strip() %}
+                <li>{{ line.strip().lstrip('•-') }}</li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- PROJECTS -->
+  {% if projects %}
+  <div class="section">
+    <div class="section-title">Projects</div>
+    {% for proj in projects %}
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">
+            {{ proj.title }}
+            {% if proj.tech_stack %}
+              <span style="font-weight:normal; font-size:9pt;"> | {{ proj.tech_stack }}</span>
+            {% endif %}
+          </span>
+          {% if proj.github_link %}
+            <span class="entry-date">{{ proj.github_link }}</span>
+          {% endif %}
+        </div>
+        {% if proj.description %}
+          <ul>
+            {% for line in proj.description.split('\n') %}
+              {% if line.strip() %}
+                <li>{{ line.strip().lstrip('•-') }}</li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- EDUCATION -->
+  {% if education %}
+  <div class="section">
+    <div class="section-title">Education</div>
+    {% for edu in education %}
+      <div class="edu-row">
+        <div class="edu-left">
+          <div class="edu-degree">
+            {% if edu.stream %}{{ edu.stream }}{% else %}{{ edu.level }}{% endif %}
+          </div>
+          <div class="edu-inst">{{ edu.institution }} | {{ edu.board_university }}</div>
+        </div>
+        <div class="edu-right">
+          <div>{{ edu.year_of_passing }}</div>
+          {% if edu.percentage_cgpa %}
+            <div><strong>{{ edu.percentage_cgpa }}</strong></div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- CERTIFICATIONS -->
+  {% if certifications %}
+  <div class="section">
+    <div class="section-title">Certifications</div>
+    {% for cert in certifications %}
+      <div class="cert-item">
+        <strong>{{ cert.name }}</strong> — {{ cert.issuer }}{% if cert.year %}, {{ cert.year }}{% endif %}
+        {% if cert.url %} | {{ cert.url }}{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- CO-CURRICULAR -->
+  {% if cocurricular %}
+  <div class="section">
+    <div class="section-title">Co-Curricular &amp; Achievements</div>
+    <ul class="cocurr-list">
+      {% for item in cocurricular %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <!-- PERSONAL (ATS friendly — no photo) -->
+  {% if dob or gender or languages_known %}
+  <div class="section">
+    <div class="section-title">Additional Information</div>
+    <div class="skills-line">
+      {% if dob %}<strong>DOB:</strong> {{ dob }} &nbsp;{% endif %}
+      {% if gender %}<strong>Gender:</strong> {{ gender }} &nbsp;{% endif %}
+      {% if languages_known %}<strong>Languages:</strong> {{ languages_known | join(', ') }}{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+</body>
+</html>

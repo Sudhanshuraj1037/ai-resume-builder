@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>{{ full_name }} — Resume</title>
+<style>
+
+/* ═══════════════════════════════════════════════
+   WEASYPRINT PAGE SETUP
+   This is the most critical rule — tells WeasyPrint
+   exactly what page size and margins to use.
+   Content area = 210mm - 0mm margins = 210mm wide
+═══════════════════════════════════════════════ */
+@page {
+  size: A4 portrait;
+  margin: 8mm 10mm 8mm 12mm; /* top | right | bottom | left */
+}
+
+/* ═══════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+html, body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 9pt;
+  color: #222;
+  background: #fff;
+  line-height: 1.5;
+  width: 190mm;
+}
+
+/* ═══════════════════════════════════════════════
+   PAGE CONTAINER
+   width: 100% fills the @page content area
+═══════════════════════════════════════════════ */
+.wrap {
+  width: 190mm;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════
+   HEADER  — dark navy banner
+═══════════════════════════════════════════════ */
+table.hdr {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1b2a4a;
+  table-layout: fixed;
+}
+.hdr .td-photo {
+  width: 90px;
+  padding: 16px 8px 16px 16px;
+  vertical-align: middle;
+}
+.hdr .td-info {
+  padding: 16px 16px 16px 8px;
+  vertical-align: middle;
+  overflow: hidden;
+}
+.photo-img {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 3px solid #c0392b;
+  display: block;
+  object-fit: cover;
+}
+.photo-ph {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 3px solid #c0392b;
+  background: #243554;
+  text-align: center;
+  padding-top: 10px;
+}
+.hdr-name {
+  font-family: Arial, sans-serif;
+  font-size: 20pt;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+.hdr-contact-row {
+  margin-top: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 7.2pt;
+  color: #b0c4de;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.8;
+}
+.hdr-contact-row span {
+  margin-right: 10px;
+  white-space: nowrap;
+  display: inline-block;
+}
+.hdr-contact-row span::before {
+  content: "● ";
+  color: #c0392b;
+  font-size: 5pt;
+  vertical-align: middle;
+}
+
+/* ═══════════════════════════════════════════════
+   BODY  — sidebar (left) + main (right)
+   Using a real <table> so WeasyPrint behaves
+═══════════════════════════════════════════════ */
+table.body {
+  width: 100%;
+  border-collapse: collapse;
+  vertical-align: top;
+  margin-top: 2px;
+}
+table.body > tbody > tr > td {
+  vertical-align: top;
+  padding: 0;
+}
+
+/* Left sidebar — fixed px width for WeasyPrint */
+.td-left {
+  width: 205px;
+  background: #f7f8fa;
+  border-right: 2px solid #e0e4ec;
+  padding: 16px 14px 20px 20px;
+}
+
+/* Right main — takes remaining space, no overflow */
+.td-right {
+  padding: 16px 18px 20px 22px;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════
+   SECTION HEADERS
+═══════════════════════════════════════════════ */
+.sec {
+  margin-bottom: 12px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+/* Left sidebar section title */
+.sec-title-left {
+  font-family: Arial, sans-serif;
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: #1b2a4a;
+  padding-bottom: 3px;
+  border-bottom: 1.8px solid #c0392b;
+  margin-bottom: 7px;
+  page-break-after: avoid;
+}
+/* Right main section title */
+.sec-title-right {
+  font-family: Arial, sans-serif;
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: #1b2a4a;
+  padding-bottom: 3px;
+  border-bottom: 1.8px solid #c0392b;
+  margin-bottom: 8px;
+  page-break-after: avoid;
+}
+
+/* ═══════════════════════════════════════════════
+   SIDEBAR — PERSONAL
+═══════════════════════════════════════════════ */
+.pi-block { margin-bottom: 6px; }
+.pi-label {
+  font-family: Arial, sans-serif;
+  font-size: 6pt;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #888;
+  display: block;
+  margin-bottom: 1px;
+}
+.pi-value {
+  font-size: 7.5pt;
+  color: #333;
+}
+.lang-pill {
+  display: inline-block;
+  border: 1px solid #1b2a4a;
+  color: #1b2a4a;
+  font-family: Arial, sans-serif;
+  font-size: 6.2pt;
+  padding: 1px 6px;
+  border-radius: 2px;
+  margin: 1px 2px 1px 0;
+}
+
+/* ═══════════════════════════════════════════════
+   SIDEBAR — SKILLS
+═══════════════════════════════════════════════ */
+.sk-group-label {
+  font-family: Arial, sans-serif;
+  font-size: 6.3pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #666;
+  letter-spacing: 0.5px;
+  margin: 6px 0 3px 0;
+}
+.sk-pill {
+  display: inline-block;
+  font-family: Arial, sans-serif;
+  font-size: 6.5pt;
+  padding: 2px 7px;
+  border-radius: 12px;
+  margin: 2px 2px 2px 0;
+  color: #fff;
+  background: #c0392b;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+.sk-pill.tool { background: #1b2a4a; }
+.sk-pill.soft { background: #4a6274; }
+
+/* ═══════════════════════════════════════════════
+   SIDEBAR — EDUCATION
+═══════════════════════════════════════════════ */
+.edu-block {
+  margin-bottom: 8px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.edu-degree {
+  font-family: Arial, sans-serif;
+  font-size: 7.5pt;
+  font-weight: 700;
+  color: #1b2a4a;
+  line-height: 1.3;
+}
+.edu-univ {
+  font-size: 7pt;
+  color: #555;
+  margin-top: 1px;
+}
+table.edu-meta {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2px;
+}
+.edu-meta-board {
+  font-family: Arial, sans-serif;
+  font-size: 6.3pt;
+  color: #888;
+}
+.edu-meta-year {
+  font-family: Arial, sans-serif;
+  font-size: 6.3pt;
+  color: #888;
+  text-align: right;
+  white-space: nowrap;
+}
+.edu-score {
+  font-family: Arial, sans-serif;
+  font-size: 7pt;
+  font-weight: 700;
+  color: #c0392b;
+  margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════════════
+   SIDEBAR — CERTIFICATIONS
+═══════════════════════════════════════════════ */
+.cert-block {
+  margin-bottom: 6px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.cert-name {
+  font-family: Arial, sans-serif;
+  font-size: 7pt;
+  font-weight: 700;
+  color: #1b2a4a;
+  line-height: 1.3;
+}
+.cert-meta {
+  font-family: Arial, sans-serif;
+  font-size: 6.3pt;
+  color: #777;
+  margin-top: 1px;
+}
+
+/* ═══════════════════════════════════════════════
+   MAIN — PROFESSIONAL SUMMARY
+═══════════════════════════════════════════════ */
+.summary-p {
+  font-size: 8.5pt;
+  color: #333;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+/* ═══════════════════════════════════════════════
+   MAIN — EXPERIENCE / PROJECTS
+═══════════════════════════════════════════════ */
+.entry {
+  margin-bottom: 10px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+table.entry-hdr {
+  width: 100%;
+  border-collapse: collapse;
+}
+.entry-title-td { vertical-align: top; }
+.entry-date-td  {
+  vertical-align: top;
+  text-align: right;
+  white-space: nowrap;
+  width: 22mm;
+  padding-left: 4px;
+}
+.entry-title {
+  font-family: Arial, sans-serif;
+  font-size: 9pt;
+  font-weight: 700;
+  color: #1b2a4a;
+  line-height: 1.25;
+}
+.entry-company {
+  font-size: 8pt;
+  color: #555;
+  font-style: italic;
+  margin-top: 1px;
+}
+.entry-stack {
+  font-family: Arial, sans-serif;
+  font-size: 7.2pt;
+  color: #c0392b;
+  font-style: normal;
+  margin-top: 1px;
+}
+.entry-date {
+  font-family: Arial, sans-serif;
+  font-size: 7.2pt;
+  color: #777;
+  padding-top: 1px;
+}
+/* Divider line under entry header */
+.entry-divider {
+  border: none;
+  border-top: 0.5px solid #dde2ef;
+  margin: 4px 0;
+}
+/* Bullet list */
+ul.blist {
+  padding-left: 15px;
+  margin-top: 4px;
+}
+ul.blist li {
+  font-size: 8pt;
+  color: #333;
+  margin-bottom: 3px;
+  line-height: 1.5;
+  list-style-type: disc;
+}
+
+/* ═══════════════════════════════════════════════
+   MAIN — CO-CURRICULAR
+═══════════════════════════════════════════════ */
+.cc-item {
+  font-size: 8pt;
+  color: #333;
+  margin-bottom: 3px;
+  padding-left: 12px;
+  position: relative;
+  page-break-inside: avoid;
+  line-height: 1.5;
+}
+.cc-item::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: #c0392b;
+}
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════ */
+table.ftr {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid #dde2ef;
+  margin-top: 0;
+  background: #f7f8fa;
+}
+.ftr td {
+  font-family: Arial, sans-serif;
+  font-size: 6.3pt;
+  color: #aaa;
+  padding: 5px 14px;
+}
+.ftr-right { text-align: right; }
+
+/* ═══════════════════════════════════════════════
+   CLICKABLE LINKS — work in WeasyPrint PDF
+═══════════════════════════════════════════════ */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+/* Header contact links — white underline */
+a.hdr-link {
+  color: #b0c4de;
+  text-decoration: underline;
+  text-decoration-color: rgba(176,196,222,0.4);
+}
+a.hdr-link:hover { color: #fff; }
+
+/* Sidebar cert link */
+a.cert-url {
+  font-family: Arial, sans-serif;
+  font-size: 6.5pt;
+  color: #c0392b;
+  text-decoration: underline;
+}
+
+/* Project GitHub / Live links */
+a.proj-link {
+  font-family: Arial, sans-serif;
+  font-size: 7.2pt;
+  color: #1b2a4a;
+  text-decoration: underline;
+  text-decoration-color: #c0392b;
+  display: block;
+  text-align: right;
+}
+a.proj-link:hover { color: #c0392b; }
+.sec, .edu-block, .cert-block, .entry, .cc-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.sec-title-left, .sec-title-right {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+@media print {
+  html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ══════════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════════ -->
+<table class="hdr">
+<tr>
+  <td class="td-photo">
+    {% if photo_b64 %}
+      <img class="photo-img"
+           src="data:image/jpeg;base64,{{ photo_b64 }}"
+           alt="Photo"/>
+    {% else %}
+      <div class="photo-ph">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="#c0392b">
+          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+        </svg>
+      </div>
+    {% endif %}
+  </td>
+  <td class="td-info">
+    <div class="hdr-name">{{ full_name }}</div>
+    <div class="hdr-contact-row">
+      {% if email    %}<span><a class="hdr-link" href="mailto:{{ email }}">{{ email }}</a></span>{% endif %}
+      {% if phone    %}<span><a class="hdr-link" href="tel:{{ phone }}">{{ phone }}</a></span>{% endif %}
+      {% if city or state %}<span>{{ city }}{% if city and state %}, {% endif %}{{ state }}</span>{% endif %}
+      {% if linkedin %}<span><a class="hdr-link" href="{{ linkedin if linkedin.startswith('http') else 'https://' + linkedin }}">{{ linkedin }}</a></span>{% endif %}
+      {% if github   %}<span><a class="hdr-link" href="{{ github if github.startswith('http') else 'https://' + github }}">{{ github }}</a></span>{% endif %}
+      {% if portfolio and portfolio != github %}<span><a class="hdr-link" href="{{ portfolio if portfolio.startswith('http') else 'https://' + portfolio }}">{{ portfolio }}</a></span>{% endif %}
+    </div>
+  </td>
+</tr>
+</table>
+
+<!-- ══════════════════════════════════════════════════
+     BODY  (left sidebar + right main)
+══════════════════════════════════════════════════ -->
+<table class="body">
+<tbody>
+<tr>
+
+  <!-- ─── LEFT SIDEBAR ──────────────────────────── -->
+  <td class="td-left">
+
+    <!-- Personal -->
+    {% if dob or gender or address or languages_known %}
+    <div class="sec">
+      <div class="sec-title-left">Personal</div>
+
+      {% if dob %}
+      <div class="pi-block">
+        <span class="pi-label">Date of Birth</span>
+        <span class="pi-value">{{ dob }}</span>
+      </div>
+      {% endif %}
+
+      {% if gender %}
+      <div class="pi-block">
+        <span class="pi-label">Gender</span>
+        <span class="pi-value">{{ gender }}</span>
+      </div>
+      {% endif %}
+
+      {% if address %}
+      <div class="pi-block">
+        <span class="pi-label">Address</span>
+        <span class="pi-value">{{ address }}</span>
+      </div>
+      {% endif %}
+
+      {% if languages_known %}
+      <div class="pi-block">
+        <span class="pi-label">Languages</span><br/>
+        {% for l in languages_known %}
+          <span class="lang-pill">{{ l }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Skills -->
+    {% if skills_technical or skills_tools or skills_soft %}
+    <div class="sec">
+      <div class="sec-title-left">Skills</div>
+
+      {% if skills_technical %}
+        <div class="sk-group-label">Technical</div>
+        {% for s in skills_technical %}
+          <span class="sk-pill">{{ s }}</span>
+        {% endfor %}
+      {% endif %}
+
+      {% if skills_tools %}
+        <div class="sk-group-label">Tools &amp; Platforms</div>
+        {% for s in skills_tools %}
+          <span class="sk-pill tool">{{ s }}</span>
+        {% endfor %}
+      {% endif %}
+
+      {% if skills_soft %}
+        <div class="sk-group-label">Soft Skills</div>
+        {% for s in skills_soft %}
+          <span class="sk-pill soft">{{ s }}</span>
+        {% endfor %}
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Education -->
+    {% if education %}
+    <div class="sec">
+      <div class="sec-title-left">Education</div>
+
+      {% for edu in education %}
+      <div class="edu-block">
+        <div class="edu-degree">
+          {% if edu.stream %}{{ edu.stream }}{% else %}{{ edu.level }}{% endif %}
+        </div>
+        <div class="edu-univ">{{ edu.institution }}</div>
+        <table class="edu-meta">
+          <tr>
+            <td class="edu-meta-board">{{ edu.board_university }}</td>
+            <td class="edu-meta-year">
+              {% if edu.year_of_passing and edu.year_of_passing != 'None' %}
+                {{ edu.year_of_passing }}
+              {% else %}Pursuing{% endif %}
+            </td>
+          </tr>
+        </table>
+        {% if edu.percentage_cgpa %}
+          <div class="edu-score">{{ edu.percentage_cgpa }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Certifications -->
+    {% if certifications %}
+    <div class="sec">
+      <div class="sec-title-left">Certifications</div>
+
+      {% for c in certifications %}
+      <div class="cert-block">
+        <div class="cert-name">
+          {% if c.url %}
+            <a class="cert-url" href="{{ c.url if c.url.startswith('http') else 'https://' + c.url }}">{{ c.name }}</a>
+          {% else %}
+            {{ c.name }}
+          {% endif %}
+        </div>
+        <div class="cert-meta">
+          {{ c.issuer }}{% if c.year %} &nbsp;·&nbsp; {{ c.year }}{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </td><!-- /left -->
+
+  <!-- ─── RIGHT MAIN ────────────────────────────── -->
+  <td class="td-right">
+
+    <!-- Professional Summary -->
+    {% if summary %}
+    <div class="sec">
+      <div class="sec-title-right">Professional Summary</div>
+      <p class="summary-p">{{ summary }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Work Experience -->
+    {% if experience %}
+    <div class="sec">
+      <div class="sec-title-right">Work Experience</div>
+
+      {% for exp in experience %}
+      <div class="entry">
+        <table class="entry-hdr">
+          <tr>
+            <td class="entry-title-td">
+              <div class="entry-title">{{ exp.role }}</div>
+              <div class="entry-company">
+                {{ exp.company }}{% if exp.location %} &nbsp;·&nbsp; {{ exp.location }}{% endif %}
+              </div>
+            </td>
+            <td class="entry-date-td">
+              <div class="entry-date">{{ exp.start_date }} – {{ exp.end_date }}</div>
+            </td>
+          </tr>
+        </table>
+        <hr class="entry-divider"/>
+        {% if exp.description %}
+        <ul class="blist">
+          {% for line in exp.description.split('\n') %}
+            {% set clean = line.strip().lstrip('•- ') %}
+            {% if clean %}
+              <li>{{ clean }}</li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Projects -->
+    {% if projects %}
+    <div class="sec">
+      <div class="sec-title-right">Projects</div>
+
+      {% for proj in projects %}
+      <div class="entry">
+        <table class="entry-hdr">
+          <tr>
+            <td class="entry-title-td">
+              <div class="entry-title">{{ proj.title }}</div>
+              {% if proj.tech_stack %}
+                <div class="entry-stack">{{ proj.tech_stack }}</div>
+              {% endif %}
+            </td>
+            <td class="entry-date-td">
+              {% if proj.github_link %}
+                <a class="proj-link" href="{{ proj.github_link if proj.github_link.startswith('http') else 'https://' + proj.github_link }}">GitHub ↗</a>
+              {% endif %}
+              {% if proj.live_link %}
+                <a class="proj-link" href="{{ proj.live_link if proj.live_link.startswith('http') else 'https://' + proj.live_link }}">Live ↗</a>
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+        <hr class="entry-divider"/>
+        {% if proj.description %}
+        <ul class="blist">
+          {% for line in proj.description.split('\n') %}
+            {% set clean = line.strip().lstrip('•- ') %}
+            {% if clean %}
+              <li>{{ clean }}</li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Co-Curricular -->
+    {% if cocurricular %}
+    <div class="sec">
+      <div class="sec-title-right">Co-Curricular &amp; Achievements</div>
+      {% for item in cocurricular %}
+        <div class="cc-item">{{ item }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </td><!-- /right -->
+
+</tr>
+</tbody>
+</table><!-- /body -->
+
+<!-- ══════════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════════ -->
+<table class="ftr">
+  <tr>
+    <td>Generated by AI Resume Builder</td>
+    <td class="ftr-right">{{ full_name }} &nbsp;·&nbsp; Resume</td>
+  </tr>
+</table>
+
+</div><!-- /wrap -->
+</body>
+</html>
