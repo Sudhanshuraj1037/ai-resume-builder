@@ -7,18 +7,11 @@ Workflow:
   1. Receive the full resume data dict (from st.session_state).
   2. Load the appropriate Jinja2 HTML template (indian_modern | ats_friendly).
   3. Render the template with the data → HTML string.
-  4. Convert HTML → PDF bytes using WeasyPrint (primary) or pdfkit (fallback).
+  4. Convert HTML → PDF bytes using xhtml2pdf (primary, pure-Python, works on
+     Streamlit Cloud with zero system dependencies) or WeasyPrint (local fallback).
   5. Return:
        - The HTML string  (for in-browser preview via <iframe>).
        - The PDF bytes   (for st.download_button).
-
-Design notes:
-  - Templates live in the `templates/` sub-folder; path is resolved relative
-    to THIS file's directory so the app works from any working directory.
-  - WeasyPrint is preferred because it handles CSS flexbox, gradients, and
-    Base64 image URIs natively — critical for the Indian Modern template.
-  - pdfkit (wkhtmltopdf) is the fallback for environments where WeasyPrint's
-    Cairo/Pango dependencies are absent (e.g. some Windows setups).
 """
 
 from __future__ import annotations
@@ -46,21 +39,29 @@ _jinja_env = Environment(
     lstrip_blocks=True,
 )
 
-# Add the `truncate` filter manually in case autoescape removes it
-# (Jinja2's built-in truncate is always available; this is just defensive).
 _jinja_env.filters.setdefault("truncate", lambda s, length=255, killwords=False, end="...", leeway=0:
     s if len(s) <= length else s[:length - len(end)] + end
 )
 
-# ── WeasyPrint / pdfkit detection ─────────────────────────────────────────────
+# ── PDF engine detection ──────────────────────────────────────────────────────
+# Priority: xhtml2pdf (pure Python, works everywhere including Streamlit Cloud)
+#           WeasyPrint (better CSS support but needs system libs — local only)
+#           pdfkit     (needs wkhtmltopdf binary)
+
+try:
+    from xhtml2pdf import pisa  # type: ignore
+    _HAS_XHTML2PDF = True
+    logger.info("xhtml2pdf detected — will use as primary PDF engine.")
+except ImportError:
+    _HAS_XHTML2PDF = False
+    logger.warning("xhtml2pdf not found.")
 
 try:
     from weasyprint import HTML as WeasyHTML  # type: ignore
     _HAS_WEASYPRINT = True
-    logger.info("WeasyPrint detected — will use as primary PDF engine.")
-except ImportError:
+    logger.info("WeasyPrint detected — available as secondary PDF engine.")
+except Exception:
     _HAS_WEASYPRINT = False
-    logger.warning("WeasyPrint not found; will attempt pdfkit as fallback.")
 
 try:
     import pdfkit  # type: ignore
@@ -76,7 +77,7 @@ except ImportError:
 
 TEMPLATE_MAP: dict[str, str] = {
     "indian_modern": "indian_modern.html",
-    "ats_friendly": "ats_friendly.html",
+    "ats_friendly":  "ats_friendly.html",
 }
 
 
@@ -85,29 +86,6 @@ TEMPLATE_MAP: dict[str, str] = {
 # ─────────────────────────────────────────────────────────────────────────────
 
 def render_html(resume_data: dict[str, Any], template_name: str = "indian_modern") -> str:
-    """
-    Render a Jinja2 HTML template with the provided resume data.
-
-    Parameters
-    ----------
-    resume_data : dict
-        The full resume data dictionary from st.session_state (see utils.py
-        for the canonical schema).
-    template_name : str
-        One of the keys in TEMPLATE_MAP.
-
-    Returns
-    -------
-    str
-        Rendered HTML string ready for WeasyPrint or browser display.
-
-    Raises
-    ------
-    KeyError
-        If template_name is not in TEMPLATE_MAP.
-    FileNotFoundError
-        If the template file does not exist on disk.
-    """
     template_file = TEMPLATE_MAP.get(template_name)
     if not template_file:
         raise KeyError(
@@ -123,32 +101,19 @@ def render_html(resume_data: dict[str, Any], template_name: str = "indian_modern
         )
 
     template = _jinja_env.get_template(template_file)
-
-    # Flatten the data dict into keyword arguments for the template.
-    # We also coerce None → empty string / empty list for Jinja2's `if` checks.
     ctx = _sanitise_context(resume_data)
-
     html = template.render(**ctx)
-    logger.info(
-        "Template '%s' rendered successfully (%d chars).", template_name, len(html)
-    )
+    logger.info("Template '%s' rendered successfully (%d chars).", template_name, len(html))
     return html
 
 
 def _sanitise_context(data: dict[str, Any]) -> dict[str, Any]:
-    """
-    Create a Jinja2-safe copy of the resume data:
-      - Replace None with "" for string fields.
-      - Replace None with [] for list fields.
-      - Ensure nested dicts (education, experience, etc.) are lists.
-    """
     _LIST_FIELDS = {
         "education", "experience", "projects", "certifications",
         "skills_technical", "skills_soft", "skills_tools",
         "cocurricular", "languages_known",
         "ats_matched_keywords", "ats_missing_keywords",
     }
-
     ctx: dict[str, Any] = {}
     for key, value in data.items():
         if key in _LIST_FIELDS:
@@ -166,23 +131,32 @@ def _sanitise_context(data: dict[str, Any]) -> dict[str, Any]:
 
 def html_to_pdf_bytes(html_string: str) -> bytes:
     """
-    Convert an HTML string to PDF bytes using the best available engine.
+    Convert an HTML string to PDF bytes.
 
     Engine priority:
-      1. WeasyPrint — handles CSS3, flexbox, gradients, Base64 images.
-      2. pdfkit     — requires wkhtmltopdf binary; fallback for WeasyPrint issues.
-      3. RuntimeError if neither is available.
-
-    Parameters
-    ----------
-    html_string : str
-        Fully rendered HTML from render_html().
-
-    Returns
-    -------
-    bytes
-        Raw PDF byte content ready for st.download_button or file I/O.
+      1. xhtml2pdf  — pure Python, zero system deps, works on Streamlit Cloud.
+      2. WeasyPrint — better CSS3 support but needs libpango (local only).
+      3. pdfkit     — needs wkhtmltopdf binary.
     """
+    if _HAS_XHTML2PDF:
+        logger.info("Converting HTML → PDF using xhtml2pdf.")
+        try:
+            pdf_buffer = io.BytesIO()
+            result = pisa.CreatePDF(
+                src=io.StringIO(html_string),
+                dest=pdf_buffer,
+                encoding="utf-8",
+            )
+            if result.err:
+                logger.warning("xhtml2pdf reported errors (err=%s); PDF may still be usable.", result.err)
+            pdf_bytes = pdf_buffer.getvalue()
+            if pdf_bytes:
+                logger.info("xhtml2pdf PDF generated (%d bytes).", len(pdf_bytes))
+                return pdf_bytes
+            logger.warning("xhtml2pdf returned empty bytes; trying next engine.")
+        except Exception as exc:
+            logger.warning("xhtml2pdf failed (%s); trying WeasyPrint.", exc)
+
     if _HAS_WEASYPRINT:
         logger.info("Converting HTML → PDF using WeasyPrint.")
         try:
@@ -213,9 +187,7 @@ def html_to_pdf_bytes(html_string: str) -> bytes:
 
     raise RuntimeError(
         "No PDF engine available.\n"
-        "Install WeasyPrint:  pip install WeasyPrint\n"
-        "  OR\n"
-        "Install pdfkit + wkhtmltopdf: pip install pdfkit  (then install wkhtmltopdf binary)"
+        "Run:  pip install xhtml2pdf"
     )
 
 
@@ -224,16 +196,6 @@ def html_to_pdf_bytes(html_string: str) -> bytes:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def pdf_bytes_to_b64_uri(pdf_bytes: bytes) -> str:
-    """
-    Convert raw PDF bytes to a Base64 data URI suitable for an HTML <iframe>.
-
-    Usage in Streamlit:
-        uri = pdf_bytes_to_b64_uri(pdf_bytes)
-        st.components.v1.html(
-            f'<iframe src="{uri}" width="100%" height="800px"></iframe>',
-            height=820,
-        )
-    """
     b64 = base64.b64encode(pdf_bytes).decode("utf-8")
     return f"data:application/pdf;base64,{b64}"
 
@@ -246,25 +208,8 @@ def generate_resume(
     resume_data: dict[str, Any],
     template_name: str = "indian_modern",
 ) -> tuple[str, bytes]:
-    """
-    Full pipeline: data → HTML → PDF.
-
-    Parameters
-    ----------
-    resume_data : dict
-        Session state resume data.
-    template_name : str
-        "indian_modern" or "ats_friendly".
-
-    Returns
-    -------
-    tuple[str, bytes]
-        (html_string, pdf_bytes) — both are returned so the caller can:
-          • Show the HTML in a preview iframe.
-          • Offer the PDF bytes via st.download_button.
-    """
     html = render_html(resume_data, template_name)
-    pdf = html_to_pdf_bytes(html)
+    pdf  = html_to_pdf_bytes(html)
     return html, pdf
 
 
@@ -273,25 +218,19 @@ def generate_resume(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def resume_data_to_plain_text(resume_data: dict[str, Any]) -> str:
-    """
-    Serialise the resume data dict to a flat plain-text string.
-
-    This is passed to llm_engine.calculate_ats_score() so the LLM has a
-    clean textual representation of the resume (not HTML tags).
-    """
     lines: list[str] = []
 
     def add(label: str, value: Any) -> None:
         if value:
             lines.append(f"{label}: {value}")
 
-    add("Name", resume_data.get("full_name"))
-    add("Email", resume_data.get("email"))
-    add("Phone", resume_data.get("phone"))
+    add("Name",     resume_data.get("full_name"))
+    add("Email",    resume_data.get("email"))
+    add("Phone",    resume_data.get("phone"))
     add("Location", f"{resume_data.get('city', '')} {resume_data.get('state', '')}".strip())
     add("LinkedIn", resume_data.get("linkedin"))
-    add("GitHub", resume_data.get("github"))
-    add("Summary", resume_data.get("summary"))
+    add("GitHub",   resume_data.get("github"))
+    add("Summary",  resume_data.get("summary"))
 
     for edu in (resume_data.get("education") or []):
         lines.append(
@@ -313,9 +252,9 @@ def resume_data_to_plain_text(resume_data: dict[str, Any]) -> str:
         if proj.get("description"):
             lines.append(proj["description"])
 
-    tech = resume_data.get("skills_technical") or []
-    tools = resume_data.get("skills_tools") or []
-    soft = resume_data.get("skills_soft") or []
+    tech  = resume_data.get("skills_technical") or []
+    tools = resume_data.get("skills_tools")      or []
+    soft  = resume_data.get("skills_soft")       or []
     all_skills = tech + tools + soft
     if all_skills:
         lines.append("Skills: " + ", ".join(all_skills))
