@@ -1,1 +1,2 @@
-
+libfreetype-dev
+pkg-config
