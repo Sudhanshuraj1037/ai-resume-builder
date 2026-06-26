@@ -1,122 +1,274 @@
-# 📄 AI Resume Builder — India
-> A next-level, production-ready AI-powered resume builder tailored for the Indian job market.
-> Built as a university-level AI project using Streamlit + Groq (Llama-3 70B).
+# 🤖 AI Resume Builder
+
+### AI-Powered Resume Builder with ATS Scoring, Resume Parsing, Keyword Optimization & PDF Generation using Groq (Llama 3)
+
+<p align="center">
+
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-success?style=for-the-badge)](https://ai-resume-builder-4hbg7gvcuqrmddtt79zskj.streamlit.app/)
+![Python](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge)
+![Streamlit](https://img.shields.io/badge/Streamlit-Web_App-red?style=for-the-badge)
+![Groq](https://img.shields.io/badge/Groq-Llama_3-green?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)
+
+</p>
 
 ---
 
-## 🏗 Project Architecture
+> **A production-ready AI Resume Builder that helps users create ATS-friendly resumes, optimize keywords, improve content using AI, and export professional PDF resumes.**
 
-```
+Built using **Python, Streamlit, Groq (Llama 3), Jinja2, WeasyPrint and PDF Processing Libraries.**
+
+---
+
+# 🌐 Live Demo
+
+### 🚀 Try it here
+
+https://ai-resume-builder-4hbg7gvcuqrmddtt79zskj.streamlit.app/
+
+No installation required.
+
+---
+
+# 📸 Application Preview
+
+## Home Page
+
+<img width="1920" height="1020" alt="Screenshot 2026-06-26 144424" src="https://github.com/user-attachments/assets/98188d06-9f8a-45fa-bb67-89a03142bcd6" />
+
+
+
+# 📖 Overview
+
+AI Resume Builder is an intelligent web application that leverages **Large Language Models (LLMs)** to generate professional resumes in minutes.
+
+The application helps users:
+
+- Upload an existing resume
+- Analyze ATS compatibility
+- Improve resume bullet points
+- Generate professional summaries
+- Optimize keywords
+- Compare resume against job descriptions
+- Export ATS-friendly PDF resumes
+
+The project is designed primarily for the **Indian job market** while supporting globally accepted resume formats.
+
+---
+
+# ✨ Features
+
+- 🤖 AI Resume Parsing
+- 📄 ATS Score Calculation
+- 🎯 Keyword Optimization
+- 🧠 AI Professional Summary
+- 💼 Resume Bullet Enhancement
+- 📊 Skill Gap Analysis
+- 📑 Multiple Resume Templates
+- 📤 Resume Upload
+- 📥 PDF Export
+- ⚡ Groq Llama 3 Integration
+- 🌍 ATS Friendly Resume
+- 🇮🇳 Indian Resume Format
+- 🎨 Modern Streamlit UI
+
+---
+
+# 🏗 Project Architecture
+
+```text
 ai_resume_builder/
-├── app.py                  # Main Streamlit UI — wizard tabs, session state
-├── llm_engine.py           # All Groq API calls & prompt engineering
-├── pdf_generator.py        # Jinja2 rendering + WeasyPrint PDF conversion
-├── utils.py                # PDF parsing, image→Base64, JSON helpers, schema
+│
+├── app.py
+├── llm_engine.py
+├── pdf_generator.py
+├── utils.py
+│
 ├── templates/
-│   ├── indian_modern.html  # Two-column template with photo (Indian standard)
-│   └── ats_friendly.html   # Single-column plain template (ATS optimised)
+│   ├── indian_modern.html
+│   └── ats_friendly.html
+│
+├── assets/
+│   ├── screenshots/
+│   └── demo.gif
+│
 ├── requirements.txt
-├── .env.example            # Copy to .env and add your GROQ_API_KEY
-├── .gitignore
-└── README.md
+├── .env.example
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-## ⚙️ Setup
+# 📦 Tech Stack
 
-### 1. Clone / download the project
+| Category | Technology |
+|-----------|------------|
+| Language | Python |
+| Framework | Streamlit |
+| LLM | Groq (Llama 3) |
+| Prompt Engineering | Custom Prompt Templates |
+| Resume Templates | HTML + Jinja2 |
+| PDF Generation | WeasyPrint |
+| Resume Parsing | pdfplumber, PyPDF2 |
+| Image Processing | Pillow |
+| Deployment | Streamlit Cloud |
+
+---
+
+# 🤖 AI Features
+
+| Feature | Description |
+|----------|-------------|
+| Resume Parsing | Extracts resume into structured JSON |
+| ATS Score | Calculates ATS compatibility |
+| Keyword Optimization | Adds missing keywords |
+| Resume Enhancement | Improves bullet points using STAR method |
+| Professional Summary | Generates recruiter-friendly summaries |
+| Skill Gap Analysis | Compares resume with job descriptions |
+
+---
+
+# 🎨 Resume Templates
+
+| Template | Best For | ATS Friendly | Photo |
+|-----------|----------|-------------|-------|
+| Indian Modern | Campus Placements | ✅ | ✅ |
+| ATS Friendly | FAANG / Startups | ✅ | ❌ |
+
+---
+
+# ⚙️ Installation
+
+## Clone Repository
+
 ```bash
-git clone https://github.com/your-username/ai-resume-builder-india.git
-cd ai-resume-builder-india
+git clone https://github.com/Sudhanshuraj1037/ai-resume-builder.git
+
+cd ai-resume-builder
 ```
 
-### 2. Create a virtual environment
+---
+
+## Create Virtual Environment
+
+### Windows
+
 ```bash
 python -m venv venv
-source venv/bin/activate        # Linux / macOS
-venv\Scripts\activate           # Windows
+
+venv\Scripts\activate
 ```
 
-### 3. Install dependencies
+### Linux / macOS
+
+```bash
+python3 -m venv venv
+
+source venv/bin/activate
+```
+
+---
+
+## Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-> **WeasyPrint** requires system libraries.  
-> Ubuntu/Debian: `sudo apt-get install libpango-1.0-0 libpangoft2-1.0-0`  
-> macOS: `brew install pango`  
-> Windows: Use pdfkit instead (install `wkhtmltopdf` binary).
+---
 
-### 4. Configure your API key
-```bash
-cp .env.example .env
-# Edit .env and add your Groq API key from https://console.groq.com
+## Configure Environment Variables
+
+Create a `.env` file.
+
+Add your Groq API Key.
+
+```text
+GROQ_API_KEY=YOUR_API_KEY
 ```
 
-### 5. Run the app
+---
+
+## Run Application
+
 ```bash
 streamlit run app.py
 ```
 
-The app will open at `http://localhost:8501`.
+Application will run at
+
+```
+http://localhost:8501
+```
 
 ---
 
-## 🤖 AI Features
+# 📊 Project Highlights
 
-| Feature | Model Temp | Prompt Strategy |
-|---|---|---|
-| Parse uploaded PDF → JSON | 0.2 | Strict schema extraction, zero hallucination |
-| Enhance bullets (STAR method) | 0.7 | Few-shot + domain vocabulary injection |
-| Skill gap analysis | 0.3 | JD vs skills set comparison |
-| ATS Match Score (0–100) | 0.0 | Chain-of-thought section scoring |
-| Professional summary | 0.6 | Role + achievements synthesis |
+✔ AI-powered Resume Enhancement
 
----
+✔ ATS Score Analysis
 
-## 🎨 Resume Templates
+✔ Resume Parsing
 
-| Template | Best For | Photo | Columns |
-|---|---|---|---|
-| Indian Modern | Campus placement, MNCs | ✅ Yes | 2-column |
-| ATS Friendly | Job portals, FAANG, startups | ❌ No | Single-column |
+✔ Keyword Optimization
 
----
+✔ Skill Gap Detection
 
-## 📐 Indian Resume Schema (Key Fields)
+✔ Multiple Resume Templates
 
-- **Personal**: DOB, Gender, Languages Known, Full Address, Photo
-- **Education**: 10th / 12th / Diploma / UG / PG with CGPA or Percentage
-- **Sections**: Summary, Experience, Projects, Skills, Certifications, Co-Curricular
+✔ PDF Resume Generation
+
+✔ Fast Groq LLM Integration
 
 ---
 
-## 🔑 Environment Variables
+# 📂 Future Improvements
 
-| Variable | Description |
-|---|---|
-| `GROQ_API_KEY` | Your Groq API key (free at console.groq.com) |
-
----
-
-## 📦 Tech Stack
-
-- **Frontend**: Streamlit
-- **LLM**: Groq API (Llama-3 70B / Mixtral 8×7B fallback)
-- **PDF**: WeasyPrint (primary) + pdfkit (fallback)
-- **Templates**: Jinja2 HTML
-- **Parsing**: pdfplumber + PyPDF2
-- **Image**: Pillow → Base64
+- Cover Letter Generator
+- LinkedIn Profile Import
+- Resume Version History
+- AI Interview Question Generator
+- Portfolio Website Generator
+- Resume Translation
+- Multi-language Support
+- One-click Job Description Matching
 
 ---
 
-## 🧑‍💻 Contributing
+# 📄 License
 
-Pull requests welcome!  Please open an issue first to discuss major changes.
+This project is licensed under the **MIT License**.
+
+Feel free to use it for learning, research and academic purposes.
 
 ---
 
-## 📄 License
+# 👨‍💻 Author
 
-MIT License — free to use for academic and personal projects.
+## Sudhanshu Raj
+
+**B.Tech Computer Science & Engineering**
+
+Lovely Professional University
+
+### 🌐 Connect with me
+
+- LinkedIn:
+  https://linkedin.com/in/sudhanshu-raj-7b1651321
+
+---
+
+# ⭐ Support
+
+If you found this project useful,
+
+⭐ Star this repository
+
+🍴 Fork it
+
+💡 Share your feedback
+
+Happy Coding! 🚀
