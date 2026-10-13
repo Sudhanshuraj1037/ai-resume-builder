@@ -249,15 +249,20 @@ Feel free to use it for learning, research and academic purposes.
 # 👨‍💻 Author
 
 ## Sudhanshu Raj❤️
+## Thuppati Rakhi
 
 **B.Tech Computer Science & Engineering**
 
 Lovely Professional University
 
-### 🌐 Connect with me
+### 🌐 Connect us with
 
 - LinkedIn:
+- Sudhanshu
   https://linkedin.com/in/sudhanshu-raj-7b1651321
+- Rakhi
+  https://www.linkedin.com/in/thuppati-rakhi/
+  
 
 ---
 
